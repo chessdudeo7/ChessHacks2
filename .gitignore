@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+devtools/
+.venv/
+env/
+venv/
+
+# Local configs
+.env.local
+
+# Large files / data
+training/
+*.pt
+*.pth
+*.pgn

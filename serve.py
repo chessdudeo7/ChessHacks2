@@ -5,11 +5,19 @@ import time
 import chess
 import os
 import sys
+from pathlib import Path
 
-# Add the current directory (project root) to sys.path
-sys.path.append(os.getcwd())
+# --- FIX for ModuleNotFoundError: No module named 'training' ---
+# 1. Get the directory of this script (serve.py), which is the project root.
+PROJECT_ROOT = Path(__file__).parent.resolve()
 
-# Now the import should work, as 'training' is a directory in os.getcwd()
+# 2. Add the project root to the Python path *immediately* so Python can find
+# sibling directories like 'training' when importing from 'src'.
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.append(str(PROJECT_ROOT))
+
+# Now that the path is set, all standard imports that rely on the root can follow.
+# Note: The import below is fine because 'src' is also at the root level.
 from src import main
 
 # --- IMPORTANT FIX ---
@@ -17,7 +25,6 @@ from src import main
 from src.utils import chess_manager
 
 app = FastAPI()
-
 
 @app.post("/")
 async def root():
@@ -28,7 +35,8 @@ async def root():
 async def get_move(request: Request):
 
     # --- IMPORTANT FIX: lazy import to avoid Modal startup failure ---
-    from src import main  # noqa: F401
+    # This import is necessary for Modal's state management.
+    from src import main # noqa: F401
 
     try:
         data = await request.json()

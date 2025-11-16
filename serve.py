@@ -4,6 +4,13 @@ import uvicorn
 import time
 import chess
 import os
+import sys
+
+# Add the current directory (project root) to sys.path
+sys.path.append(os.getcwd())
+
+# Now the import should work, as 'training' is a directory in os.getcwd()
+from src import main
 
 # --- IMPORTANT FIX ---
 # Do NOT import `main` here. Modal needs lazy import inside endpoints.

@@ -6,6 +6,7 @@ import random
 import os
 import sys
 from .utils import chess_manager, GameContext
+from training.chess_dataset import fen_to_tensors
 
 # ----------------------------------------------------
 # Add training folder (where model and dataset code live)

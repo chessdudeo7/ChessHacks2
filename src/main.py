@@ -17,7 +17,6 @@ TRAINING_DIR = os.path.abspath(TRAINING_DIR)
 sys.path.insert(0, TRAINING_DIR)
 
 # Import your training code
-from chess_dataset import fen_to_tensors
 from move_vocab import MoveVocab
 from model import ChessNet
 

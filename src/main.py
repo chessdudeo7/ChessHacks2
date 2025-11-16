@@ -6,7 +6,22 @@ import random
 import os
 import sys
 from .utils import chess_manager, GameContext
-from training.chess_dataset import fen_to_tensors
+
+
+import sys
+import os
+import torch
+import modal
+
+# --- FIX for ModuleNotFoundError: No module named 'training' ---
+# The parent directory of src/ is the project root, which contains 'training/'.
+# Add the project root to sys.path to enable sibling package import.
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.append(PROJECT_ROOT)
+# -----------------------------------------------------------------
+
+from training.chess_dataset import fen_to_tensors # This line should now work
 
 # ----------------------------------------------------
 # Add training folder (where model and dataset code live)

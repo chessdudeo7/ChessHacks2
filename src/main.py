@@ -5,52 +5,43 @@ import chess
 import random
 import os
 import sys
-from .utils import chess_manager, GameContext
 
-
-import sys
-import os
-import torch
-import modal
-
-# --- FIX for ModuleNotFoundError: No module named 'training' ---
-# The parent directory of src/ is the project root, which contains 'training/'.
-# Add the project root to sys.path to enable sibling package import.
+# --- Single, unified path fix (REQUIRED if training/__init__.py is missing) ---
+# If training/ is a sibling of src/, add the project root to sys.path.
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
     sys.path.append(PROJECT_ROOT)
-# -----------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-from training.chess_dataset import fen_to_tensors # This line should now work
+# Import your helper files now that the path is set
+from training.chess_dataset import fen_to_tensors
+from training.move_vocab import MoveVocab
+from training.model import ChessNet # Assuming model.py is in 'training/'
 
-# ----------------------------------------------------
-# Add training folder (where model and dataset code live)
-# ----------------------------------------------------
-TRAINING_DIR = os.path.join(os.path.dirname(__file__), "..", "training")
-TRAINING_DIR = os.path.abspath(TRAINING_DIR)
-
-sys.path.insert(0, TRAINING_DIR)
-
-# Import your training code
-from move_vocab import MoveVocab
-from model import ChessNet
+from .utils import chess_manager, GameContext # Relative import for siblings within src/
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # ----------------------------------------------------
+# Define path to asset directory (project root/training/)
+# ----------------------------------------------------
+# This path is relative to the project root, which we added to sys.path
+ASSET_DIR = os.path.join(PROJECT_ROOT, "training")
+
+
+# ----------------------------------------------------
 # Load the latest trained vocab
 # ----------------------------------------------------
-VOCAB_PATH = os.path.join(TRAINING_DIR, "move_vocab.pt")
-# --- FIX ---
-# Set weights_only=False because we are loading a pickled 
-# class object (MoveVocab), not just a state dictionary.
+VOCAB_PATH = os.path.join(ASSET_DIR, "move_vocab.pt")
+# NOTE: The weights_only=False flag should only be used if you are sure 
+# you are loading a pickled object (the whole class), not just the state_dict.
 vocab = torch.load(VOCAB_PATH, map_location=DEVICE, weights_only=False)
 print("Loaded vocab with", len(vocab.idx_to_move), "moves.")
 
 # ----------------------------------------------------
 # Load the latest trained model
 # ----------------------------------------------------
-MODEL_PATH = os.path.join(TRAINING_DIR, "chess_model.pt")
+MODEL_PATH = os.path.join(ASSET_DIR, "chess_model.pt")
 model = ChessNet(output_size=len(vocab.idx_to_move))
 # This line is fine as-is because it loads a state_dict (weights)
 state_dict = torch.load(MODEL_PATH, map_location=DEVICE) 
